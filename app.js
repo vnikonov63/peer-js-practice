@@ -7,9 +7,9 @@ const { v4: uuidV4 } = require("uuid");
 const { PeerServer } = require("peer");
 
 const peerServer = PeerServer({
-  // host: "vnikonov-63-peer.herokuapp.com",
-  // secure: true,
-  // port: 443,
+  host: "vnikonov-63-peer.herokuapp.com",
+  secure: true,
+  port: 443,
 });
 
 const port = process.env.PORT || 3000;
