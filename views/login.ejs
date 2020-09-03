@@ -1,0 +1,17 @@
+<div style="height: 80vh" class="valign-wrapper">
+  <div class="container">
+    <div class="card deep-orange darken-1 center-align" id="loginError"></div>
+    <div class="badge center-align">
+      Please provide your e-mail and password which you used in the registration
+    </div>
+    <form method="POST" action="/login" name="login">
+      <label for="email">E-mail:</label>
+      <input type="text" placeholder="Enter Email" name="email" required />
+
+      <label for="password">Password:</label>
+      <input type="password" name="password" required />
+
+      <input class="validate btn" type="submit" value="Log in" />
+    </form>
+  </div>
+</div>
