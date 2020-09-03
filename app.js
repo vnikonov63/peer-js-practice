@@ -13,7 +13,7 @@ const peerServer = PeerServer({
   // path: "/myapp",
 });
 
-const port = 3000 || process.ebv.PORT;
+const port = 3000 || process.env.PORT;
 
 app.set("view engine", "ejs");
 app.use(express.static("public"));
