@@ -6,7 +6,12 @@ const { v4: uuidV4 } = require("uuid");
 
 const { PeerServer } = require("peer");
 
-const peerServer = PeerServer({ port: 9000, path: "/myapp" });
+const peerServer = PeerServer({
+  // host: "9000-c60ae333-4b0c-46b0-9ecf-0c8f7012d89f.ws-eu01.gitpod.io",
+  // secure: true,
+  // port: 443,
+  // path: "/myapp",
+});
 
 const port = 3000 || process.ebv.PORT;
 
