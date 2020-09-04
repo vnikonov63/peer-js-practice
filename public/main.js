@@ -11,7 +11,7 @@ let userCount = 1;
 navigator.mediaDevices
   .getUserMedia({
     video: { width: 150, height: 150 },
-    adudio: true,
+    audio: true,
   })
   .then((stream) => {
     addVideoStream(myVideo, stream);
