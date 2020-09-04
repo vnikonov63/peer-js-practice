@@ -73,12 +73,11 @@ app.post("/login", async (req, res) => {
   if (user[0]) {
     if (user[0].email === "admin") {
       if (user[0].password === password) {
-        req.session.user = "someUser";
-        req.session.admin = "admin";
+        req.session.user = "admin";
       }
     } else {
       if (user[0].password === password) {
-        req.session.user = "someUser";
+        req.session.user = "user";
         res.redirect("/mafia");
       } else {
         res.redirect("/login");
@@ -90,21 +89,29 @@ app.post("/login", async (req, res) => {
 });
 
 app.get("/mafia", checkAuthSession, (req, res) => {
-  res.render("layout", { roomId: "mafia" });
+  res.render("layout", { roomId: "mafia", userStatus: req.session.user });
+});
+
+app.get("/userStatus", checkAuthSession, (req, res) => {
+  res.send(req.session.user);
 });
 
 io.on("connection", function (socket) {
   // if (!socket.request.user) {
-  //   socket.destriy;
-  //   return;
-  // }
+  //   socket.disconnect();
+  // } else {
+  socket.emit("userStatus", socket.request.session.user);
   socket.on("join-room", (roomId, userId) => {
     socket.join(roomId);
-    socket.to(roomId).broadcast.emit("user-connected", userId);
+    socket.to(roomId).broadcast.emit("user-connected", {
+      userId: userId,
+      userStatus: socket.request.session.user,
+    });
     socket.on("disconnect", () => {
       socket.to(roomId).broadcast.emit("user-disconnected", userId);
     });
   });
+  // }
 });
 
 server.listen(port, () => {
