@@ -13,16 +13,22 @@ mongoose.connect(process.env.MONGO, {
   useUnifiedTopology: true,
 });
 
-let session = require("express-session");
+const User = require("./models/user.js");
 
-app.use(
-  session({
-    secret: "HelloWorld",
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false },
-  })
-);
+let session = require("express-session");
+const { request } = require("http");
+const sessionParser = session({
+  secret: "HelloWorld",
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false },
+});
+
+io.use(function (socket, next) {
+  sessionParser(socket.request, socket.request.res, next);
+});
+
+app.use(sessionParser);
 
 app.use((req, res, next) => {
   console.log("SESSION:", req.session);
@@ -34,6 +40,14 @@ const peerServer = PeerServer({
   // secure: true,
   // port: 443,
 });
+
+function checkAuthSession(req, res, next) {
+  if (req.session.user) {
+    next();
+  } else {
+    res.redirect("/login");
+  }
+}
 
 const port = process.env.PORT || 3000;
 
@@ -53,16 +67,37 @@ app.get("/login", (req, res) => {
   res.render("login");
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  console.log(email, password);
+  const user = await User.find({ email: email });
+  if (user[0]) {
+    if (user[0].email === "admin") {
+      if (user[0].password === password) {
+        req.session.user = "someUser";
+        req.session.admin = "admin";
+      }
+    } else {
+      if (user[0].password === password) {
+        req.session.user = "someUser";
+        res.redirect("/mafia");
+      } else {
+        res.redirect("/login");
+      }
+    }
+  } else {
+    res.redirect("/login");
+  }
 });
 
-app.get("/mafia", (req, res) => {
+app.get("/mafia", checkAuthSession, (req, res) => {
   res.render("layout", { roomId: "mafia" });
 });
 
-io.on("connection", (socket) => {
+io.on("connection", function (socket) {
+  // if (!socket.request.user) {
+  //   socket.destriy;
+  //   return;
+  // }
   socket.on("join-room", (roomId, userId) => {
     socket.join(roomId);
     socket.to(roomId).broadcast.emit("user-connected", userId);

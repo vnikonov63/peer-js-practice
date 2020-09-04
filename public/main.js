@@ -1,13 +1,6 @@
 const socket = io("/");
 const videGrid = document.getElementById("video-grid");
-const peer = new Peer(
-  undefined
-  // {
-  //   secure: true,
-  //   host: "vnikonov-63-peer.herokuapp.com",
-  //   port: 443,
-  // }
-);
+const peer = new Peer(undefined);
 
 const myVideo = document.createElement("video");
 myVideo.muted = true;
@@ -17,7 +10,6 @@ const peers = [];
 navigator.mediaDevices
   .getUserMedia({
     video: { width: 150, height: 150 },
-    audio: true,
   })
   .then((stream) => {
     addVideoStream(myVideo, stream);
@@ -31,6 +23,7 @@ navigator.mediaDevices
     });
 
     socket.on("user-connected", (userId) => {
+      console.log(userId);
       connectToNewUser(userId, stream);
     });
   });
@@ -42,10 +35,6 @@ socket.on("user-disconnected", (userId) => {
 peer.on("open", (id) => {
   socket.emit("join-room", ROOM_ID, id);
 });
-
-// socket.on("user-connected", (userId) => {
-//   console.log(`User ${userId} connected`);
-// });
 
 function connectToNewUser(userId, stream) {
   const call = peer.call(userId, stream);
